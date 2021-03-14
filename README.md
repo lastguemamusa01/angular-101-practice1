@@ -5,7 +5,7 @@
 Angular is an application design framework and development platform for creating efficient 
 and sophisticated single-page apps
 
-need nodejs and angular cli installed
+need nodejs, npm package manager and angular cli installed
 
 A component-based framework for building scalable web applications
 
@@ -78,3 +78,8 @@ Service
     the service is injected in the constructor
     service that using httpCliente, The async pipe returns the latest value from a stream of data and continues 
     to do so for the life of a given component. When Angular destroys that component, the async pipe automatically stops
+
+Angular cli
+    
+    ng new my-app
+    
