@@ -18,6 +18,55 @@ key architectural elements
         An HTML template that determines the UI.
         Component-specific styles that define the look and feel.
 
+        An HTML template that declares what renders on the page
+        A Typescript class that defines behavior
+        A CSS selector that defines how the component is used in a template
+        Optionally, CSS styles applied to the template
+
+        Lifecycle hooks
+          You can respond to events in the lifecycle of a component or directive by implementing one or more of the lifecycle hook interfaces in the Angular core library.
+
+          - ngOnChanges()   - Respond when Angular sets or resets data-bound input properties. only call with inputs. each action in the input detect the every changes made in input.  it is very expensive
+          - ngOnInit().     - Initialize the directive or component after Angular first displays the data-bound properties and sets the directive or component's input properties.
+            You should not, for example, fetch data in a component constructor.
+            ngOnInit() is a good place for a component to fetch its initial data.
+            Constructors should do no more than set the initial local variables to simple values.
+          
+          - ngDoCheck().    - Detect and act upon changes that Angular can't or won't detect on its own. for custom changes.  it is very expensive
+
+          The AfterContent hooks concern ContentChildren, the child components that Angular projected into the component.
+          - ngAfterContentInit(). -  Respond after Angular projects external content into the component's view, or into the view that a directive is in
+          - ngAfterContentChecked()	- Respond after Angular checks the content projected into the directive or component.
+          
+          The AfterView hooks concern ViewChildren, the child components whose element tags appear within the component's template.
+          - ngAfterViewInit().     - Respond after Angular initializes the component's views and child views, or the view that contains the directive.
+          - ngAfterViewChecked(). (dont use)  - Respond after Angular checks the component's views and child views, or the view that contains the directive. 
+          
+          - ngOnDestroy().     - Cleanup just before Angular destroys the directive or component. Unsubscribe Observables and detach event handlers to avoid memory leaks.
+            Unsubscribe from Observables and DOM events.
+            Stop interval timers.
+            Unregister all callbacks that the directive registered with global or application services.
+            ngOnDestroy() method is also the time to notify another part of the application that the component is going away.
+
+        Component interaction
+          Pass data from parent to child with input binding
+            Intercept input property changes with a setter
+            Intercept input property changes with ngOnChanges()
+          Parent listens for child event
+            The child component exposes an EventEmitter property with which it emits events when something happens
+          Parent interacts with child via local variable. (can just access child component).  <app-countdown-timer #timer></app-countdown-timer>
+          Parent calls an @ViewChild().  (can access to read and write child component).    @ViewChild(CountdownTimerComponent) and ngAfterViewInit()
+          Parent and children communicate via a service
+            subscription and unsubscribe()
+        
+        Component styles
+          Using component styles
+            styles: ['h1 { font-weight: normal; }']
+            Class names and selectors are local to the component and don't collide with classes and selectors used elsewhere in the application.
+          Special selectors
+            
+          
+
     - Templates
     - String interpolation is to show dynamic text of the property
         {{ product.name }}
@@ -82,4 +131,8 @@ Service
 Angular cli
     
     ng new my-app
-    
+    ng generate component <component-name>   
+
+View encapsulation
+
+    component CSS styles are encapsulated into the component's view and don't affect the rest of the application.
