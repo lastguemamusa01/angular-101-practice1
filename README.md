@@ -64,10 +64,66 @@ key architectural elements
             styles: ['h1 { font-weight: normal; }']
             Class names and selectors are local to the component and don't collide with classes and selectors used elsewhere in the application.
           Special selectors
-            
+            :host - pseudo-class selector to target styles in the element that hosts the component (as opposed to targeting elements inside the component's template).
+            :host-context - Sometimes it's useful to apply styles based on some condition outside of a component's view.
+            :host-context() selector looks for a CSS class in any ancestor of the component host element, up to the document root
+
+            :host-context(.theme-light) h2 {
+              background-color: #eef;
+            }
+            applies a background-color style to all <h2> elements inside the component, only if some ancestor element has the CSS class theme-light.
+
+            (deprecated) /deep/, >>>, and ::ng-deep
+            Applying the ::ng-deep pseudo-class to any CSS rule completely disables view-encapsulation for that rule. Any style with ::ng-deep applied becomes a global style. In order to scope the specified style to the current component and all its descendants, be sure to include the :host selector before ::ng-deep
+            :host ::ng-deep h3 { }. targets all <h3> elements, from the host element down through this component to all of its child elements in the DOM.
+
+            Use /deep/, >>> and ::ng-deep only with emulated view encapsulation
           
+          Loading component styles
+            By setting styles or styleUrls metadata.
+              styles: ['h1 { font-weight: normal; }']
+              styleUrls: ['./hero-app.component.css']
+            Inline in the template HTML.
+              template: `
+                        <style>
+                          button {
+                            background-color: white;
+                            border: 1px solid #777;
+                          }
+                        </style>
+                        <h3>Controls</h3>
+                        <button (click)="activate()">Activate</button>
+                      `
+              or in inteplate use  <link rel="stylesheet" href="../assets/hero-team.component.css">
+          With CSS imports.
+            in css file, @import './hero-details-box.css';
+
+          External and global style files
+            When building with the CLI, you must configure the angular.json to include all external assets, including external style files.
+            Register global style files in the styles section which, by default, is pre-configured with the global styles.css file.
+          
+          Non-CSS style files
+            If you're building with the CLI, you can write style files in sass, less, or stylus
+            styleUrls: ['./app.component.scss']
+          
+        Dynamic component loader
+          - like add banner
+          The ad banner uses a helper directive called AdDirective to mark valid insertion points in the template.
+          AdDirective injects ViewContainerRef
+          <ng-template adHost></ng-template>
+          private componentFactoryResolver: componentFactoryResolver  
+
+        Angular elements
+
+          Angular elements are Angular components packaged as custom elements (also called Web Components), a web standard for defining new HTML elements in a framework-agnostic way.
+          The @angular/elements package exports a createCustomElement() API that provides a bridge from Angular's component interface and change detection functionality to the built-in DOM API.
+          Custom elements bootstrap themselves - they start automatically when they are added to the DOM, and are automatically destroyed when removed from the DOM.
 
     - Templates
+        In Angular, a template is a chunk of HTML
+        To eliminate the risk of script injection attacks, Angular does not support the <script> element in templates.
+
+
     - String interpolation is to show dynamic text of the property
         {{ product.name }}
     - Property bindings, to help you set values for properties and attributes of HTML elements and 
