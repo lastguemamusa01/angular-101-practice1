@@ -13,7 +13,7 @@ ng build --prod   - to create the applicacion in the dist folder to deployment
 
 key architectural elements
 
-    Binding syntax
+    - Binding syntax
 
       Data binding and HTML
 
@@ -99,7 +99,7 @@ key architectural elements
 
         A common way to handle events is to pass the event object, $event, to the method handling the event. The $event object often contains information the method needs, such as a user's name or an image URL.
 
-    Template variables
+    - Template variables
 
       Template variables help you use data from one part of a template in another part of the template. With template variables, you can perform tasks such as respond to user input or finely tune your application's forms.
 
@@ -1338,3 +1338,314 @@ deployment
     Using corporate proxy
 
       If you work behind a corporate proxy, the backend cannot directly proxy calls to any URL outside your local network. In this case, you can configure the backend proxy to redirect calls through your corporate proxy using an agent:
+
+
+
+Workspace and project file structure
+
+  You develop applications in the context of an Angular workspace. A workspace contains the files for one or more projects. A project is the set of files that comprise a standalone application or a shareable library.
+
+  Workspace configuration files
+  
+    .editorconfig	Configuration for code editors. See EditorConfig.
+    .gitignore	Specifies intentionally untracked files that Git should ignore.
+    README.md	Introductory documentation for the root app.
+    angular.json	CLI configuration defaults for all projects in the workspace, including configuration options for build, serve, and test tools that the CLI uses, such as TSLint, Karma, and Protractor. For details, see Angular Workspace Configuration.
+    package.json	Configures npm package dependencies that are available to all projects in the workspace. See npm documentation for the specific format and contents of this file.
+    package-lock.json	Provides version information for all packages installed into node_modules by the npm client. See npm documentation for details. If you use the yarn client, this file will be yarn.lock instead.
+    src/	Source files for the root-level application project.
+    node_modules/	Provides npm packages to the entire workspace. Workspace-wide node_modules dependencies are visible to all projects.
+    tsconfig.json	The base TypeScript configuration for projects in the workspace. All other configuration files inherit from this base file. For more information, see the Configuration inheritance with extends section of the TypeScript documentation.
+    tslint.json	Default TSLint configuration for projects in the workspace.
+
+    angular.json
+
+      version: The configuration-file version.
+      newProjectRoot: Path where new projects are created. Absolute or relative to the workspace folder.
+      defaultProject: Default project name to use in commands, where not provided as an argument. When you use ng new to create a new app in a new workspace, that app is the default project for the workspace until you change it here.
+      schematics : A set of schematics that customize the ng generate sub-command option defaults for this workspace. See Generation schematics below.
+      projects : Contains a subsection for each project (library or application) in the workspace, with the per-project configuration options.
+
+      Strict mode
+
+        When you create new workspaces and projects, you have the option to use Angular's strict mode, which can help you write better, more maintainable code. For more information, see Strict mode.
+
+      Project configuration options
+    
+        root	The root folder for this project's files, relative to the workspace folder. Empty for the initial app, which resides at the top level of the workspace.
+        sourceRoot	The root folder for this project's source files.
+        projectType	One of "application" or "library". An application can run independently in a browser, while a library cannot.
+        prefix	A string that Angular prepends to generated selectors. Can be customized to identify an app or feature area.
+        schematics	A set of schematics that customize the ng generate sub-command option defaults for this project. See Generation schematics below.
+        architect	Configuration defaults for Architect builder targets for this project.
+
+        Generation schematics
+
+          Angular generation schematics are instructions for modifying a project by adding files or modifying existing files. Individual schematics for the default Angular CLI ng generate sub-commands are collected in the package @schematics/angular. Specify the schematic name for a subcommand in the format schematic-package:schematic-name; for example, the schematic for generating a component is @schematics/angular:component.
+
+        Project tool configuration options
+
+          Architect is the tool that the CLI uses to perform complex tasks, such as compilation and test running. Architect is a shell that runs a specified builder to perform a given task, according to a target configuration. You can define and configure new builders and targets to extend the CLI. See Angular CLI Builders.
+
+          Default Architect builders and targets
+
+            app-shell
+            browser
+            dev-server
+            extract-i18n
+            karma
+            protractor
+            server
+            tslint
+
+          "architect": {
+            "build": { },
+            "serve": { },
+            "e2e" : { },
+            "test": { },
+            "lint": { },
+            "extract-i18n": { },
+            "server": { },
+            "app-shell": { }
+          }
+
+
+          The architect/build section configures defaults for options of the ng build command. See Build target below for more information.
+
+          The architect/serve section overrides build defaults and supplies additional serve defaults for the ng serve command. In addition to the options available for the ng build command, it adds options related to serving the app.
+
+          The architect/e2e section overrides build-option defaults for building end-to-end testing apps using the ng e2e command.
+
+          The architect/test section overrides build-option defaults for test builds and supplies additional test-running defaults for the ng test command.
+
+          The architect/lint section configures defaults for options of the ng lint command, which performs code analysis on project source files. The default linting tool for Angular is TSLint.
+
+          The architect/extract-i18n section configures defaults for options of the ng extract-i18n command, which extracts marked message strings from source code and outputs translation files.
+
+          The architect/server section configures defaults for creating a Universal app with server-side rendering, using the ng run <project>:server command.
+
+          The architect/app-shell section configures defaults for creating an app shell for a progressive web app (PWA), using the ng run <project>:app-shell command.
+
+        Build target
+
+          builder	The npm package for the build tool used to create this target. The default builder for an application (ng build myApp) is @angular-devkit/build-angular:browser, which uses the webpack package bundler. Note that a different builder is used for building a library (ng build myLib).
+          options	This section contains default build target options, used when no named alternative configuration is specified. See Default build targets below.
+          configurations	This section defines and names alternative configurations for different intended destinations. It contains a section for each named configuration, which sets the default options for that intended environment. See Alternate build configurations below.
+
+        Alternate build configurations
+
+          You can define and name additional alternate configurations (such as stage, for instance) appropriate to your development process. Some examples of different build configurations are stable, archive and next used by AIO itself, and the individual locale-specific configurations required for building localized versions of an app. For details, see Internationalization (i18n).
+
+        Additional build and test options
+
+          The configurable options for a default or targeted build generally correspond to the options available for the ng build, ng serve, and ng test commands. For details of those options and their possible values, see the CLI Reference.
+
+          assets	An object containing paths to static assets to add to the global context of the project. The default paths point to the project's icon file and its assets folder. See more in Assets configuration below.
+          styles	An array of style files to add to the global context of the project. Angular CLI supports CSS imports and all major CSS preprocessors: sass/scss, less, and stylus. See more in Styles and scripts configuration below.
+          stylePreprocessorOptions	An object containing option-value pairs to pass to style preprocessors. See more in Styles and scripts configuration below.
+          scripts	An object containing JavaScript script files to add to the global context of the project. The scripts are loaded exactly as if you had added them in a <script> tag inside index.html. See more in Styles and scripts configuration below.
+          budgets	Default size-budget type and threshholds for all or parts of your app. You can configure the builder to report a warning or an error when the output reaches or exceeds a threshold size. See Configure size budgets. (Not available in test section.)
+          fileReplacements	An object containing files and their compile-time replacements. See more in Configure target-specific file replacements.
+
+        Complex configuration values
+
+          The options assets, styles, and scripts can have either simple path string values, or object values with specific fields. The sourceMap and optimization options can be set to a simple Boolean value with a command flag, but can also be given a complex value using the configuration file. 
+
+          Assets configuration
+          Styles and scripts configuration
+            Style preprocessor options
+          Optimization configuration
+          Source map configuration
+
+    Workspace npm dependencies
+
+      The Angular Framework, Angular CLI, and components used by Angular applications are packaged as npm packages and distributed via the npm registry
+
+      You can download and install these npm packages by using the npm CLI client, which is installed with and runs as a Node.js® application. By default, the Angular CLI uses the npm client.
+
+      Alternatively, you can use the yarn client for downloading and installing npm packages.
+
+      package.JSON
+        
+        Both npm and yarn install the packages that are identified in a  package.json file.
+    
+        The package.json is organized into two groups of packages:
+
+          Dependencies are essential to running applications.
+          DevDependencies are only necessary to develop applications.
+
+        Dependencies
+
+          The dependencies section of package.json contains:
+
+            Angular packages: Angular core and optional modules; their package names begin @angular/.
+
+            Support packages: 3rd party libraries that must be present for Angular apps to run.
+
+            Polyfill packages: Polyfills plug gaps in a browser's JavaScript implementation.
+              Many browsers lack native support for some features in the latest HTML standards, features that Angular requires. 
+              Polyfills can emulate the missing features. The Browser Support guide explains which browsers need polyfills and how you can add them.
+
+          To add a new dependency, use the ng add command.
+
+    TypeScript configuration
+      
+      At the root tsconfig.json file specifies the base TypeScript and Angular compiler options that all projects in the workspace inherit.
+
+
+
+  Application project files
+
+    app/	Contains the component files in which your application logic and data are defined. See details below.
+    assets/	Contains image and other asset files to be copied as-is when you build your application.
+    environments/	Contains build configuration options for particular target environments. By default there is an unnamed standard development environment and a production ("prod") environment. You can define additional target environment configurations.
+    favicon.ico	An icon to use for this application in the bookmark bar.
+    index.html	The main HTML page that is served when someone visits your site. The CLI automatically adds all JavaScript and CSS files when building your app, so you typically don't need to add any <script> or<link> tags here manually.
+    main.ts	The main entry point for your application. Compiles the application with the JIT compiler and bootstraps the application's root module (AppModule) to run in the browser. You can also use the AOT compiler without changing any code by appending the --aot flag to the CLI build and serve commands.
+    polyfills.ts	Provides polyfill scripts for browser support.
+    styles.sass	Lists CSS files that supply styles for a project. The extension reflects the style preprocessor you have configured for the project.
+    test.ts	The main entry point for your unit tests, with some Angular-specific configuration. You don't typically need to edit this file.
+
+    Inside the src/ folder, the app/ folder contains your project's logic and data. Angular components, templates, and styles go here.
+
+    app/app.component.ts	Defines the logic for the app's root component, named AppComponent. The view associated with this root component becomes the root of the view hierarchy as you add components and services to your application.
+    app/app.component.html	Defines the HTML template associated with the root AppComponent.
+    app/app.component.css	Defines the base CSS stylesheet for the root AppComponent.
+    app/app.component.spec.ts	Defines a unit test for the root AppComponent.
+    app/app.module.ts	Defines the root module, named AppModule, that tells Angular how to assemble the application. Initially declares only the AppComponent. As you add more components to the app, they must be declared here.
+
+  Application configuration files
+
+    .browserslistrc	Configures sharing of target browsers and Node.js versions among various front-end tools. See Browserslist on GitHub for more information.
+    karma.conf.js	Application-specific Karma configuration.
+    tsconfig.app.json	Application-specific TypeScript configuration, including TypeScript and Angular template compiler options. See TypeScript Configuration and Angular Compiler Options.
+    tsconfig.spec.json	TypeScript configuration for the application tests. See TypeScript Configuration.
+    tslint.json	Application-specific TSLint configuration.
+
+    tsconfig.json 
+
+    When the noImplicitAny flag is false (the default), and if the compiler cannot infer the variable type based on how it's used, the compiler silently defaults the type to any. That's what is meant by implicit any.
+
+    TypeScript typings
+
+      Many JavaScript libraries, such as jQuery, the Jasmine testing library, and Angular, extend the JavaScript environment with features and syntax that the TypeScript compiler doesn't recognize natively. When the compiler doesn't recognize something, it throws an error.
+
+      Use TypeScript type definition files—d.ts files—to tell the compiler about the libraries you lo
+
+    lib.d.ts
+
+      TypeScript includes a special declaration file called lib.d.ts. This file contains the ambient declarations for various common JavaScript constructs present in JavaScript runtimes and the DOM.
+
+    Installable typings files
+
+      Many libraries—jQuery, Jasmine, and Lodash among them—do not include d.ts files in their npm packages. Fortunately, either their authors or community contributors have created separate d.ts files for these libraries and published them in well-known locations.
+
+    target
+
+      By default, the target is es2015, which is supported only in modern browsers. You can configure the target to es5 to specifically support legacy browsers. Differential loading is also provided by the Angular CLI to support modern, and legacy browsers with separate bundles.
+
+    Browser support
+      
+      Angular supports most recent browsers. This includes the following specific versions:
+
+        Chrome	latest
+        Firefox	latest and extended support release (ESR)
+        Edge	2 most recent major versions
+        IE	
+        11
+        Safari	2 most recent major versions
+        iOS	2 most recent major versions
+        Android	Q (10.0), Pie (9.0), Oreo (8.0), Nougat (7.0)
+
+      Angular's continuous integration process runs unit tests of the framework on all of these browsers for every pull request, using Sauce Labs and BrowserStack
+
+      Polyfills
+
+        Angular is built on the latest standards of the web platform. Targeting such a wide range of browsers is challenging because they do not support all features of modern browsers. You compensate by loading polyfill scripts ("polyfills") for the browsers that you must support. 
+
+        In Angular CLI version 8 and higher, applications are built using differential loading, a strategy where the CLI builds two separate bundles as part of your deployed application.
+
+          The first bundle contains modern ES2015 syntax, takes advantage of built-in support in modern browsers, ships less polyfills, and results in a smaller bundle size.
+
+          The second bundle contains code in the old ES5 syntax, along with all necessary polyfills. This results in a larger bundle size, but supports older browsers.
+
+      Enabling polyfills with CLI projects
+        
+        The Angular CLI provides support for polyfills. If you are not using the CLI to create your projects
+
+        If the polyfill you want is not already in polyfills.ts file, add the import statement by hand.
+
+        ES2015 is mandatory polyfiils - required to run an angular application on each supported browser
+
+      Polyfills for non-CLI users
+
+        If you are not using the CLI, add your polyfill scripts directly to the host web page (index.html).
+    
+    Strict mode
+
+      When you create a new workspace or an application you have an option to create them in a strict mode using the --strict flag.
+
+      Enabling this flag initializes your new workspace or application with a few new settings that improve maintainability, help you catch bugs ahead of time. Additionally, applications that use these stricter settings are easier to statically analyze, which can help the ng update command refactor code more safely and precisely when you are updating to future versions of Angular.
+
+      Specifically, the strict flag does the following:
+
+      Enables strict mode in TypeScript, as well as other strictness flags recommended by the TypeScript team. Specifically, forceConsistentCasingInFileNames, noImplicitReturns, noFallthroughCasesInSwitch.
+      Turns on strict Angular compiler flags strictTemplates, strictInjectionParameters and strictInputAccessModifiers.
+      Bundle size budgets have been reduced by ~75%.
+
+      To create a new workspace and application using the strict mode, run the following command:
+
+      content_copy
+      ng new [project-name] --strict
+      To create a new application in the strict mode within an existing non-strict workspace, run the following command:
+
+      content_copy
+      ng generate application [project-name] --Strict
+
+  End-to-end test files
+
+    An e2e/ folder at the top level contains source files for a set of end-to-end tests that correspond to the root-level application, along with test-specific configuration files.
+
+    e2e/
+      src/                 (end-to-end tests for my-app)
+          app.e2e-spec.ts
+          app.po.ts
+        protractor.conf.js  (test-tool config)
+        tsconfig.json       (TypeScript config inherits from workspace)
+        
+
+  Multiple projects
+  
+    A multi-project workspace is suitable for an enterprise that uses a single repository and global configuration for all Angular projects (the "monorepo" model). A multi-project workspace also supports library development.
+
+    Setting up for a multi-project workspace
+
+      ng new my-workspace --create-application false
+
+      cd my-workspace
+      ng generate application my-first-app
+
+  Library project files
+
+    When you generate a library using the CLI (with a command such as ng generate library my-lib), the generated files go into the projects/ folder of the workspace. 
+
+    Libraries (unlike applications and their associated e2e projects) have their own package.json configuration files.
+
+    Under the projects/ folder, the my-lib folder contains your library code.
+
+      src/lib	Contains your library project's logic and data. Like an application project, a library project can contain components, services, modules, directives, and pipes.
+      src/test.ts	The main entry point for your unit tests, with some library-specific configuration. You don't typically need to edit this file.
+      src/public-api.ts	Specifies all files that are exported from your library.
+      karma.conf.js	Library-specific Karma configuration.
+      ng-package.json	Configuration file used by ng-packagr for building your library.
+      package.json	Configures npm package dependencies that are required for this library.
+      tsconfig.lib.json	Library-specific TypeScript configuration, including TypeScript and Angular template compiler options. See TypeScript Configuration.
+      tsconfig.spec.json	TypeScript configuration for the library tests. See TypeScript Configuration.
+      tslint.json	Library-specific TSLint configuration.
+   
+
+    
+
+
+
+
