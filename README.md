@@ -13,7 +13,201 @@ ng build --prod   - to create the applicacion in the dist folder to deployment
 
 key architectural elements
 
+    Binding syntax
+
+      Data binding and HTML
+
+        Developers can customize HTML by specifying attributes with string values. In the following example, class, src, and disabled modify the <div>, <img>, and <button> elements respectively
+
+        <!-- Bind button disabled state to `isUnchanged` property -->
+        <button [disabled]="isUnchanged">Save</button>
+
+        Notice that the binding is to the disabled property of the button's DOM element, not the attribute. Data binding works with properties of DOM elements, components, and directives, not HTML attributes.
+        
+      HTML attributes and DOM properties
+
+        Angular binding distinguishes between HTML attributes and DOM properties.
+
+        Attributes initialize DOM properties and you can configure them to modify an element's behavior. Properties are features of DOM nodes.
+
+          A few HTML attributes have 1:1 mapping to properties; for example, id.
+
+          Some HTML attributes don't have corresponding properties; for example, aria-*.
+
+          Some DOM properties don't have corresponding attributes; for example, textContent.
+
+        In Angular, the only role of HTML attributes is to initialize element and directive state.
+
+        When you write a data binding, you're dealing exclusively with the DOM properties and events of the target object.
+
+        The HTML attribute value specifies the initial value; the DOM value property is the current value.
+
+        <input [disabled]="condition ? true : false">.  -> property biding
+        <input [attr.disabled]="condition ? 'disabled' : null">.   -> attribute binding.
+
+        property is for dom and attirbute is for html
+
+        Generally, use property binding over attribute binding as a boolean value is easy to read, the syntax is shorter, and a property is more performant.
+      
+      Type of data binding
+
+        Angular provides three categories of data binding according to the direction of data flow:
+
+          From the source to view
+            Interpolation
+            Property
+              Element property
+                <img [src]="heroImageUrl">
+              Component property
+                <app-hero-detail [hero]="currentHero"></app-hero-detail>
+              Directive property
+                <div [ngClass]="{'special': isSpecial}"></div>
+
+            Attribute
+              Attribute (the exception)
+                <button [attr.aria-label]="help">help</button>
+            Class
+              class property
+                <div [class.special]="isSpecial">Special</div>
+            Style
+              style property
+                <button [style.color]="isSpecial ? 'red' : 'green'">
+
+          From view to source
+            Event
+              Element event
+                <button (click)="onSave()">Save</button>
+              Component event
+                <app-hero-detail (deleteRequest)="deleteHero()"></app-hero-detail>
+              Directive event
+                <div (myClick)="clicked=$event" clickable>click me</div>
+
+          In a two way sequence of view to source to view
+            Two-way
+              Event and property
+                <input [(ngModel)]="name">
+
+          Use [] to bind from source to view.
+          Use () to bind from view to source.
+          Use [()] to bind in a two way sequence of view to source to view.
+
+      How event binding workspace
+
+        In an event binding, Angular configures an event handler for the target event. You can use event binding with your own custom events.
+
+        When the component or directive raises the event, the handler executes the template statement. The template statement performs an action in response to the event.
+
+        A common way to handle events is to pass the event object, $event, to the method handling the event. The $event object often contains information the method needs, such as a user's name or an image URL.
+
+    Template variables
+
+      Template variables help you use data from one part of a template in another part of the template. With template variables, you can perform tasks such as respond to user input or finely tune your application's forms.
+
+      A template variable can refer to the following:
+
+        a DOM element within a template
+        a directive
+        an element
+        TemplateRef
+        a web component
+
+      In the template, you use the hash symbol, #, to declare a template variable.
+
+      <input #phone placeholder="phone number" />
+      
+      <!-- lots of other elements -->
+
+      <!-- phone refers to the input element; pass its `value` to an event handler -->
+      <button (click)="callPhone(phone.value)">Call</button>
+
+      How Angular assigns values to template variables
+
+        Angular assigns a template variable a value based on where you declare the variable:
+
+          If you declare the variable on a component, the variable refers to the component instance.
+          If you declare the variable on a standard HTML tag, the variable refers to the element.
+          If you declare the variable on an <ng-template> element, the variable refers to a TemplateRef instance, which represents the template. For more information on <ng-template>, see How Angular uses the asterisk, *, syntax in Structural directives.
+          If the variable specifies a name on the right-hand side, such as #var="ngModel", the variable refers to the directive or component on the element with a matching exportAs name.
+
+      Using NgForm with template variables
+
+        The NgForm directive demonstrates getting a reference to a different value by reference a directive's exportAs name.
+
+        <form #itemForm="ngForm" (ngSubmit)="onSubmit(itemForm)">
+          <label for="name">Name <input class="form-control" name="name" ngModel required />
+          </label>
+          <button type="submit">Submit</button>
+        </form>
+
+        <div [hidden]="!itemForm.form.valid">
+          <p>{{ submitMessage }}</p>
+        </div>
+
+        Without the ngForm attribute value, the reference value of itemForm would be the HTMLFormElement, <form>. There is, however, a difference between a Component and a Directive in that Angular references a Component without specifying the attribute value, and a Directive does not change the implicit reference, or the element.
+
+        With NgForm, itemForm is a reference to the NgForm directive with the ability to track the value and validity of every control in the form.
+
+        Unlike the native <form> element, the NgForm directive has a form property. The NgForm form property allows you to disable the submit button if the itemForm.form.valid is invalid
+
+      Template variable scope
+
+        You can refer to a template variable anywhere within its surrounding template. Structural directives, such as *ngIf and *ngFor, or <ng-template> act as a template boundary. You cannot access template variables outside of these boundaries.
+
+      Accessing in a nested template
+
+        An inner template can access template variables that the outer template defines.
+
+        In the following example, changing the text in the <input> changes the value in the <span> because Angular immediately updates changes through the template variable, ref1.
+
+        <input #ref1 type="text" [(ngModel)]="firstExample" />
+        <span *ngIf="true">Value: {{ ref1.value }}</span>
+
+        <input #ref1 type="text" [(ngModel)]="firstExample" />
+
+        <!-- New template -->
+        <ng-template [ngIf]="true">
+          <!-- Since the context is inherited, the value is available to the new template -->
+          <span>Value: {{ ref1.value }}</span>
+        </ng-template>
+
+
+        <input *ngIf="true" #ref2 type="text" [(ngModel)]="secondExample" />
+        <span>Value: {{ ref2?.value }}</span> <!-- doesn't work -->
+
+        <ng-template [ngIf]="true">
+          <!-- The reference is defined within a template -->
+          <input #ref2 type="text" [(ngModel)]="secondExample" />
+        </ng-template>
+        <!-- ref2 accessed from outside that template doesn't work -->
+        <span>Value: {{ ref2?.value }}</span>
+
+        With structural directives, such as *ngFor or *ngIf, there is no way for Angular to know if a template is ever instantiated.
+
+        As a result, Angular isn't able to access the value and returns an error.
+
+      Accessing a template variable within <ng-template>
+
+        When you declare the variable on an <ng-template>, the variable refers to a TemplateRef instance, which represents the template.
+
+          <ng-template #ref3></ng-template>
+          <button (click)="log(ref3)">Log type of #ref</button>
+
+        In this example, clicking the button calls the log() function, which outputs the value of #ref3 to the console. Because the #ref variable is on an <ng-template>, the value is TemplateRef.
+
+      Template input variable
+
+        A template input variable is a variable you can reference within a single instance of the template. You declare a template input variable using the let keyword as in let hero.
+
+        There are several such variables in this example: hero, i, and odd.
+
+        The variable's scope is limited to a single instance of the repeated template. You can use the same variable name again in the definition of other structural directives.
+
+        In contrast, you declare a template variable by prefixing the variable name with #, as in #var. A template variable refers to its attached element, component, or directive.
+
+        Template input variables and template variables names have their own namespaces. The template input variable hero in let hero is distinct from the template variable hero in #hero
+
     - Components
+
         A component class that handles data and functionality.
         An HTML template that determines the UI.
         Component-specific styles that define the look and feel.
@@ -675,9 +869,79 @@ Service
     to do so for the life of a given component. When Angular destroys that component, the async pipe automatically stops
 
 Angular cli
-    
-    ng new my-app
-    ng generate component <component-name>   
+  
+  
+  -is the fastest, easiest, and recommended way to develop Angular applications
+
+    install angular cli
+    npm install -g @angular/cli
+
+    help - with available commands
+    ng help
+    ng generate --help
+
+    create new  workspace
+    ng new my-first-project
+    cd my-first-project
+    ng serve
+
+    add support for an external library to your project
+    ng add @angular/pwa
+
+    Compiles an Angular app into an output directory named dist/ at the given output path. Must be executed from within a workspace directory.
+    ng build <project>
+
+    Invokes the deploy builder for a specified project or for the default project in the workspace.
+    ng deploy <project> [options]
+
+    Opens the official Angular documentation (angular.io) in a browser, and searches for a given keyword.
+    ng doc <keyword> 
+
+    Builds and serves an Angular app, then runs end-to-end tests using Protractor.
+    ng e2e <project> [options]
+
+    Generates and/or modifies files based on a schematic.
+    ng g - shortened
+    ng generate <schematic>
+      app-shell
+      application
+      class
+      component
+      directive
+      enum
+      guard
+      interceptor
+      interface
+      library
+      module
+      pipe
+      resolver
+      service
+      service-worker
+      web-worker
+
+
+    Runs linting tools on Angular app code in a given project folder.
+    ng lint <project> 
+
+    Runs an Architect target with an optional custom builder configuration defined in your project.
+    ng run <target> 
+    The CLI commands run Architect targets such as build, serve, test, and lint
+
+    Builds and serves your app, rebuilding on file changes.
+    ng serve <project> 
+
+    Runs unit tests in a project.
+    ng test <project>
+
+    Updates your application and its dependencies.
+    ng update
+
+    Outputs Angular CLI version.
+    ng version 
+
+
+
 
 View encapsulation
 
@@ -877,5 +1141,200 @@ deployment
 
     Ivy is the code name for Angular's next-generation compilation and rendering pipeline. With the version 9 release of Angular, the new compiler and runtime instructions are used by default instead of the older compiler and runtime, known as View Engine.
 
+  Configuring application environments
 
-- Angular CLI -is the fastest, easiest, and recommended way to develop Angular applications
+    You can define different named build configurations for your project, such as stage and production, with different defaults.
+
+    Each named configuration can have defaults for any of the options that apply to the various builder targets, such as build, serve, and test.
+
+    A project's src/environments/ folder contains the base configuration file, environment.ts, which provides a default environment. You can add override defaults for additional environments, such as production and staging, in target-specific configuration files.
+
+    myProject/src/environments/
+                   └──environment.ts
+                   └──environment.prod.ts
+                   └──environment.stage.ts
+
+
+
+    environment.ts
+    export const environment = {
+      production: false,
+      apiUrl: 'http://my-api-url'
+    };
+
+    environment.prod.ts
+    export const environment = {
+      production: true,
+      apiUrl: 'http://my-prod-url'
+    };
+
+    To use the environment configurations you have defined, your components must import the original environments file:
+
+    app.component.ts
+    import { environment } from './../environments/environment';
+
+    The main CLI configuration file, angular.json, contains a fileReplacements section in the configuration for each build target, which allows you to replace any file in the TypeScript program with a target-specific version of that file.
+
+
+    "configurations": {
+      "production": {
+        "fileReplacements": [
+          {
+            "replace": "src/environments/environment.ts",
+            "with": "src/environments/environment.prod.ts"
+          }
+        ],
+
+
+    ng build --prod or ng build --configuration=production
+    
+
+    You can also configure the serve command to use the targeted build configuration if you add it to the "serve:configurations" section of angular.json:
+
+    "serve": {
+      "builder": "@angular-devkit/build-angular:dev-server",
+      "options": {
+        "browserTarget": "your-project-name:build"
+      },
+      "configurations": {
+        "production": {
+          "browserTarget": "your-project-name:build:production"
+        },
+        "staging": {
+          "browserTarget": "your-project-name:build:staging"
+        }
+      }
+    },
+
+    Configuring size budgets
+
+      As applications grow in functionality, they also grow in size. The CLI allows you to set size thresholds in your configuration to ensure that parts of your application stay within size boundaries that you define.
+
+      Define your size boundaries in the CLI configuration file, angular.json, in a budgets section for each configured environment.
+
+    Configuring CommonJS dependencies
+
+      It is recommended that you avoid depending on CommonJS modules in your Angular applications. Depending on CommonJS modules can prevent bundlers and minifiers from optimizing your application, which results in larger bundle sizes. Instead, it is recommended that you use ECMAScript modules in your entire application. For more information, see How CommonJS is making your bundles larger.
+
+      The Angular CLI outputs warnings if it detects that your browser application depends on CommonJS modules. To disable these warnings, you can add the CommonJS module name to allowedCommonJsDependencies option in the build options located in angular.json file.
+
+    Configuring browser compatibility
+
+      The CLI uses Autoprefixer to ensure compatibility with different browser and browser versions. You may find it necessary to target specific browsers or exclude certain browser versions from your build.
+
+      Internally, Autoprefixer relies on a library called Browserslist to figure out which browsers to support with prefixing. Browserlist looks for configuration options in a browserslist property of the package configuration file, or in a configuration file named .browserslistrc. Autoprefixer looks for the browserslist configuration when it prefixes your CSS.
+
+      You can tell Autoprefixer what browsers to target by adding a browserslist property to the package configuration file, package.json:
+
+      Alternatively, you can add a new file, .browserslistrc, to the project directory, that specifies browsers you want to support:
+
+      Backward compatibility with Lighthouse
+
+        If you want to produce a progressive web app and are using Lighthouse to grade the project, add the following browserslist entry to your package.json file, in order to eliminate the old flexbox prefixes:
+
+      Backward compatibility with CSS grid
+        
+        CSS grid layout support in Autoprefixer, which was previously on by default, is off by default in Angular 8 and higher.
+
+        To use CSS grid with IE10/11, you must explicitly enable it using the autoplace option. To do this, add the following to the top of the global styles file (or within a specific css selector scope):
+
+      Proxying to a backend server
+
+        You can use the proxying support in the webpack dev server to divert certain URLs to a backend server, by passing a file to the --proxy-config build option. For example, to divert all calls for http://localhost:4200/api to a server running on http://localhost:3000/api
+
+        Create a file proxy.conf.json in your project's src/ folder.
+        {
+          "/api": {
+            "target": "http://localhost:3000",
+            "secure": false
+          }
+        }
+
+        In the CLI configuration file, angular.json, add the proxyConfig option to the serve target:
+
+        ...
+        "architect": {
+          "serve": {
+            "builder": "@angular-devkit/build-angular:dev-server",
+            "options": {
+              "browserTarget": "your-application-name:build",
+              "proxyConfig": "src/proxy.conf.json"
+            },
+        ...
+        To run the dev server with this proxy configuration, call ng serve.
+
+      Rewrite the URL path
+
+        The pathRewrite proxy configuration option lets you rewrite the URL path at run time. For example, you can specify the following pathRewrite value to the proxy configuration to remove "api" from the end of a path.
+
+        {
+        "/api": {
+          "target": "http://localhost:3000",
+          "secure": false,
+          "pathRewrite": {
+            "^/api": ""
+          }
+        }
+      }
+
+      If you need to access a backend that is not on localhost, set the changeOrigin option as well. For example:
+
+      To help determine whether your proxy is working as intended, set the logLevel option. For example:
+
+    Proxy multiple entries
+
+      You can proxy multiple entries to the same target by defining the configuration in JavaScript.
+
+      Set the proxy configuration file to proxy.conf.js (instead of proxy.conf.json), and specify configuration files as in the following example.
+
+      const PROXY_CONFIG = [
+          {
+              context: [
+                  "/my",
+                  "/many",
+                  "/endpoints",
+                  "/i",
+                  "/need",
+                  "/to",
+                  "/proxy"
+              ],
+              target: "http://localhost:3000",
+              secure: false
+          }
+      ]
+
+      module.exports = PROXY_CONFIG;
+
+      angular.JSON
+      ...
+      "architect": {
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "your-application-name:build",
+            "proxyConfig": "src/proxy.conf.js"
+          },
+
+    Bypass the proxy
+
+      If you need to optionally bypass the proxy, or dynamically change the request before it's sent, add the bypass option, as shown in this JavaScript example.
+
+      const PROXY_CONFIG = {
+          "/api/proxy": {
+              "target": "http://localhost:3000",
+              "secure": false,
+              "bypass": function (req, res, proxyOptions) {
+                  if (req.headers.accept.indexOf("html") !== -1) {
+                      console.log("Skipping proxy for browser request.");
+                      return "/index.html";
+                  }
+                  req.headers["X-Custom-Header"] = "yes";
+              }
+          }
+      }
+
+      module.exports = PROXY_CONFIG;
+
+    Using corporate proxy
+
+      If you work behind a corporate proxy, the backend cannot directly proxy calls to any URL outside your local network. In this case, you can configure the backend proxy to redirect calls through your corporate proxy using an agent:
